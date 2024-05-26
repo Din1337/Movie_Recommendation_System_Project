@@ -36,5 +36,20 @@ This system relies on the following libraries:
 ⏩Collaborative Filtering: Implement user-based or item-based collaborative filtering for more tailored recommendations.
 ⏩Additional Features: Integrate more features such as actors, directors, and release years to enhance recommendation accuracy.
 
-7. Contributors
-⏩Our fellow group teammates
+7. Unit Testing and Integration
+To ensure the robustness and accuracy of the recommendation system, various unit tests and integration tests are implemented using the unittest framework. These tests validate the functionality of different components of the system.
+
+Example Unit Tests
+⏩list_random_movie_names Function: Tests if the function returns the correct number of random movie names and ensures they exist in the dataset.
+⏩recommand Function: Tests the recommendation functionality with valid and invalid movie titles.
+⏩calculate_accuracy Function: Tests the accuracy calculation of the recommendation system based on genre similarity.
+
+8. Model Accuracy
+The accuracy of the recommendation model is calculated based on genre similarity. The calculate_accuracy function evaluates how well the recommended movies match the input movie's genre.
+
+Example Calculation
+⏩Correct Recommendations: Counts how many recommended movies share at least one genre with the input movie.
+⏩Total Recommendations: The total number of recommended movies.
+
+9. Contributors
+⏩ Our fellow group teammates
