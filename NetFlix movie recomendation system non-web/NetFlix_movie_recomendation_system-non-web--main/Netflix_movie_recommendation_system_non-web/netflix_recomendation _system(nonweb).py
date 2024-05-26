@@ -7,9 +7,11 @@ Movie Recommendation System
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import unittest
+from unittest.mock import patch
 
 # Load the movie dataset
-movies = pd.read_csv(r"E:\movie_recommendation_system_project\NetFlix movie recomendation system non-web\NetFlix_movie_recomendation_system-non-web--main\Netflix_movie_recommendation_system_non-web\dataset_used\dataset.csv")
+movies = pd.read_csv(r"E:/movie_recommendation_system/NetFlix movie recomendation system non-web/NetFlix_movie_recomendation_system-non-web--main/Netflix_movie_recommendation_system_non-web/dataset_used/dataset.csv")
 
 # Data exploration
 print("Dataset description:")
@@ -94,3 +96,49 @@ else:
 
 print("-" * 80)
 print("------------------------------------------------------------------------------------")
+
+# Unit testing and integration testing
+
+class TestMovieRecommendationSystem(unittest.TestCase):
+
+    def test_list_random_movie_names(self):
+        """Test the list_random_movie_names function."""
+        movie_names = list_random_movie_names(10)
+        self.assertEqual(len(movie_names), 10)
+        for name in movie_names:
+            self.assertIn(name, newdata['title'].values)
+    
+    @patch('builtins.input', return_value='The Matrix')
+    def test_recommand(self, mock_input):
+        """Test the recommand function."""
+        recommended_movies = recommand('The Matrix')
+        self.assertIsNotNone(recommended_movies)
+        self.assertTrue(len(recommended_movies) > 0)
+    
+    @patch('builtins.input', return_value='Non-Existent Movie')
+    def test_recommand_no_recommendations(self, mock_input):
+        """Test the recommand function with a non-existent movie."""
+        recommended_movies = recommand('Non-Existent Movie')
+        self.assertIsNone(recommended_movies)
+
+def run_tests():
+    """Run unit and integration tests and display the results."""
+    test_loader = unittest.TestLoader()
+    test_suite = test_loader.loadTestsFromTestCase(TestMovieRecommendationSystem)
+    test_result = unittest.TextTestRunner(verbosity=2).run(test_suite)
+
+    total_tests = test_result.testsRun
+    failures = len(test_result.failures)
+    errors = len(test_result.errors)
+    passed = total_tests - (failures + errors)
+    
+    print("\n" + "-" * 80 + "\n")
+    print("Unit and Integration Test Results:")
+    print(f"Total tests run: {total_tests}")
+    print(f"Tests passed: {passed}")
+    print(f"Tests failed: {failures}")
+    print(f"Errors: {errors}")
+    print("-" * 80)
+
+if __name__ == '__main__':
+    run_tests()
