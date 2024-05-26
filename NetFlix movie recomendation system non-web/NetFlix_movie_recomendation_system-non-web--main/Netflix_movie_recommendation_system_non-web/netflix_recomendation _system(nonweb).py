@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 """
 Movie Recommendation System
 """
-
 # Import necessary libraries
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
@@ -23,17 +21,17 @@ print(movies.columns)
 
 print("\n" + "-" * 80 + "\n")
 
-# Feature selection
+# Select relevant features for movie recommendation
 movies = movies[['id', 'title', 'overview', 'genre']]
-movies['tags'] = movies['overview'] + movies['genre']
-newdata = movies.drop(columns=['overview', 'genre'])
+movies['tags'] = movies['overview'] + movies['genre']  # Combine 'overview' and 'genre' into a single 'tags' column
+newdata = movies.drop(columns=['overview', 'genre'])   # Drop original 'overview' and 'genre' columns
 
 print("-------------------------------MOVIE RECOMMENDATION SYSTEM-------------------------------")
 print("\n")
 
 # Text vectorization using CountVectorizer
 cv = CountVectorizer(max_features=10000, stop_words='english')
-vector = cv.fit_transform(newdata['tags'].values.astype('U')).toarray()
+vector = cv.fit_transform(newdata['tags'].values.astype('U')).toarray()  # Convert text data to vector
 print("Vectorized data shape:", vector.shape)
 
 print("\n" + "-" * 80 + "\n")
@@ -42,17 +40,17 @@ print("\n" + "-" * 80 + "\n")
 similarity = cosine_similarity(vector)
 
 # Movie recommendation function
-def recommand(movies):
+def recommand(movie_title):
     """
     Recommends similar movies based on the input movie title.
     
     Args:
-        movies (str): The title of the movie to find recommendations for.
+        movie_title (str): The title of the movie to find recommendations for.
         
     Returns:
         list: A list of recommended movie titles, or None if no recommendations are found.
     """
-    index = newdata[newdata['title'] == movies].index
+    index = newdata[newdata['title'] == movie_title].index  # Find index of the input movie title
     if not index.empty:
         index = index[0]
         if index < len(similarity):
@@ -73,6 +71,34 @@ def list_random_movie_names(n=20):
         list: A random list of movie titles.
     """
     return newdata['title'].sample(n=n).tolist()
+
+# Function to calculate accuracy of recommendations
+def calculate_accuracy(test_movie_titles):
+    """
+    Calculates the accuracy of the recommendation system.
+    
+    Args:
+        test_movie_titles (list): A list of movie titles to test.
+        
+    Returns:
+        float: The accuracy of the recommendations.
+    """
+    correct_recommendations = 0
+    total_recommendations = 0
+
+    # Evaluate each test movie title using confusion matrix
+    for title in test_movie_titles:
+        recommended_movies = recommand(title)
+        if recommended_movies:
+            input_movie_genres = set(movies[movies['title'] == title]['tags'].values[0].split())
+            for rec_movie in recommended_movies:
+                rec_movie_genres = set(movies[movies['title'] == rec_movie]['tags'].values[0].split())
+                if input_movie_genres & rec_movie_genres:
+                    correct_recommendations += 1
+            total_recommendations += len(recommended_movies)
+    
+    accuracy = (correct_recommendations / total_recommendations) * 100 if total_recommendations > 0 else 0
+    return accuracy
 
 # Testing the recommendation system
 print("Total of 10000 movie titles are here! For testing, 20 random movies are listed below:")
@@ -120,6 +146,12 @@ class TestMovieRecommendationSystem(unittest.TestCase):
         """Test the recommand function with a non-existent movie."""
         recommended_movies = recommand('Non-Existent Movie')
         self.assertIsNone(recommended_movies)
+    
+    def test_calculate_accuracy(self):
+        """Test the calculate_accuracy function."""
+        test_titles = list_random_movie_names(10)
+        accuracy = calculate_accuracy(test_titles)
+        self.assertTrue(0 <= accuracy <= 100)
 
 def run_tests():
     """Run unit and integration tests and display the results."""
@@ -131,6 +163,7 @@ def run_tests():
     failures = len(test_result.failures)
     errors = len(test_result.errors)
     passed = total_tests - (failures + errors)
+    accuracy = (passed / total_tests) * 100 if total_tests > 0 else 0
     
     print("\n" + "-" * 80 + "\n")
     print("Unit and Integration Test Results:")
@@ -138,7 +171,14 @@ def run_tests():
     print(f"Tests passed: {passed}")
     print(f"Tests failed: {failures}")
     print(f"Errors: {errors}")
+    print(f"Accuracy: {accuracy:.2f}%")
     print("-" * 80)
+
+    # Calculate and display model accuracy
+    print("Calculating model accuracy based on genre similarity...")
+    test_titles = list_random_movie_names(100)
+    model_accuracy = calculate_accuracy(test_titles)
+    print(f"Model accuracy: {model_accuracy:.2f}%")
 
 if __name__ == '__main__':
     run_tests()
